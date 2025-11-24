@@ -1,7 +1,11 @@
-from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 from db import User
+import exceptions
 import sqlalchemy as sa
+from sqlalchemy.exc import IntegrityError
+
+from utils.secrets import password_manager
+
 
 class UsersOpration:
     def __init__(self, db_session: AsyncSession) -> None:
@@ -10,8 +14,11 @@ class UsersOpration:
     async def create(self, username: str, password: str, fullname: str, phone: str, email: str, address: str) -> User:
         user = User(username=username,password=password,fullname=fullname,phone=phone,email=email,address=address)
         async with self.db_session as session:
-            session.add(user)
-            await session.commit()
+            try:
+                session.add(user)
+                await session.commit()
+            except IntegrityError:
+                raise exceptions.UserAlreadyExist
 
         return user
 
@@ -20,7 +27,7 @@ class UsersOpration:
         async with self.db_session as session:
             user = await session.scalar(query)
             if user is None:
-                raise ValidationError("User not found")
+                raise exceptions.UserNotFound
             return user
 
     async def delete_account(self, username: str, password: str) -> None:
@@ -28,3 +35,13 @@ class UsersOpration:
         async with self.db_session as session:
             await session.execute(query)
             await session.commit()
+
+    async def login(self, username: str, password: str) -> None:
+        query = sa.select(User).where(User.username == username)
+        async with self.db_session as session:
+            user = await session.scalar(query)
+            if user is None:
+                raise exceptions.UsernameOrPasswordIncorrect
+        if not password_manager.verify(password, user.password):
+            raise exceptions.UsernameOrPasswordIncorrect
+        return "YES"

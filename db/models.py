@@ -10,7 +10,7 @@ class User(Base):
     __tablename__ = "users"
 
     username: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
-    password: Mapped[str] = mapped_column(String(64), nullable=False)
+    password: Mapped[str] = mapped_column(String(255), nullable=False)
     fullname: Mapped[str] = mapped_column(String(50), nullable=False)
     phone: Mapped[str] = mapped_column(String(11), unique=True, nullable=False)
     email: Mapped[Optional[str]] = mapped_column(String(100), unique=True)
