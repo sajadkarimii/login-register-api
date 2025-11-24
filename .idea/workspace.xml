@@ -5,10 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cad8317a-93ed-4057-a96a-5aef128842a0" name="Changes" comment="register">
-      <change afterPath="$PROJECT_DIR$/exceptions.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/utils/secrets.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/schema/jwt.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/settings.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/utils/jwt.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/db/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/oprations/users.py" beforeDir="false" afterPath="$PROJECT_DIR$/oprations/users.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/routers/users.py" beforeDir="false" afterPath="$PROJECT_DIR$/routers/users.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/schema/_input.py" beforeDir="false" afterPath="$PROJECT_DIR$/schema/_input.py" afterDir="false" />
@@ -136,7 +136,7 @@
       <updated>1762958975788</updated>
       <workItem from="1762958976419" duration="21241000" />
       <workItem from="1763124736022" duration="11385000" />
-      <workItem from="1763363847100" duration="23315000" />
+      <workItem from="1763363847100" duration="28760000" />
     </task>
     <task id="LOCAL-00001" summary="register">
       <option name="closed" value="true" />

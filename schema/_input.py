@@ -8,10 +8,6 @@ class RegisterInput(BaseModel):
     email: str
     address: str
 
-class DeleteUserInput(BaseModel):
-    username: str
-    password: str
-
 class LoginInput(BaseModel):
     username: str
     password: str

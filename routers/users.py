@@ -5,9 +5,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from oprations.users import UsersOpration
 from db.engine import get_db
-from schema._input import RegisterInput, DeleteUserInput, LoginInput
+from schema._input import RegisterInput, LoginInput
 from schema.output import UserOutput
 from utils.secrets import password_manager
+from utils.jwt import JWTHandler
+from schema.jwt import JWTPayload
 
 router = APIRouter()
 
@@ -44,7 +46,7 @@ async def get_user_profile(db_session: Annotated[AsyncSession, Depends(get_db)],
 @router.delete("/{username}/")
 async def delete_user(
     db_session: Annotated[AsyncSession, Depends(get_db)],
-    data: DeleteUserInput = Body(),
+    token_data: JWTPayload = Depends(JWTHandler.verify_token),
 ):
-    await UsersOpration(db_session).delete_account(data.username, data.password)
+    await UsersOpration(db_session).delete_account(token_data.username)
 
