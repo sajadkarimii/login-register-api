@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 from typing import Annotated
-
 from jose import JWTError, jwt
 from fastapi import Header, status
 from fastapi.exceptions import HTTPException
@@ -8,12 +7,13 @@ from fastapi.exceptions import HTTPException
 from schema.jwt import JWTPayload, JWTResponsePayload
 from settings import ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, SECRET_KEY
 
+token_blacklist = set()
+
 
 class JWTHandler:
     @staticmethod
     def generate(username: str, exp_timestamp: int | None = None) -> JWTResponsePayload:
         expire_time = ACCESS_TOKEN_EXPIRE_MINUTES
-
         secret_key = SECRET_KEY
 
         expires_delta = datetime.utcnow() + timedelta(minutes=expire_time)
@@ -21,6 +21,7 @@ class JWTHandler:
         to_encode = {
             "exp": exp_timestamp if exp_timestamp else expires_delta,
             "username": username,
+            "iat": datetime.utcnow(),
         }
         encoded_jwt = jwt.encode(to_encode, secret_key, ALGORITHM)
 
@@ -32,22 +33,26 @@ class JWTHandler:
         if not jwt_token:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="auth header not found.",
+                detail="Authorization header not found",
             )
+        if jwt_token in token_blacklist:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token has been revoked",
+            )
+
         try:
             token_data = jwt.decode(jwt_token, SECRET_KEY, algorithms=[ALGORITHM])
 
-            if datetime.fromtimestamp(token_data["exp"]) < datetime.now():
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Token expired",
-                    headers={"WWW-Authenticate": "Bearer"},
-                )
         except JWTError:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Could not validate credentials.",
+                detail="Could not validate credentials",
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
         return JWTPayload(**token_data)
+
+    @staticmethod
+    def revoke_token(token: str):
+        token_blacklist.add(token)

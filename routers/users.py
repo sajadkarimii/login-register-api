@@ -1,6 +1,7 @@
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from typing import Annotated
-
-from fastapi import APIRouter, Body, Depends
+from fastapi import APIRouter, Body, Depends, HTTPException, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from oprations.users import UsersOpration
@@ -12,11 +13,15 @@ from utils.jwt import JWTHandler
 from schema.jwt import JWTPayload
 
 router = APIRouter()
+limiter = Limiter(key_func=get_remote_address)
+
 
 @router.post("/register", response_model=UserOutput)
+@limiter.limit("10/minute")
 async def register(
-    db_session: Annotated[AsyncSession, Depends(get_db)],
-    data: RegisterInput = Body(),
+        request: Request,
+        db_session: Annotated[AsyncSession, Depends(get_db)],
+        data: RegisterInput = Body(),
 ):
     password = password_manager.hash(data.password)
     user = await UsersOpration(db_session).create(
@@ -31,22 +36,47 @@ async def register(
 
 
 @router.post("/login")
+@limiter.limit("5/minute")
 async def login(
-    db_session: Annotated[AsyncSession, Depends(get_db)],
-    data: LoginInput = Body(),
+        request: Request,
+        db_session: Annotated[AsyncSession, Depends(get_db)],
+        data: LoginInput = Body(),
 ):
     token = await UsersOpration(db_session).login(data.username, data.password)
     return token
 
+
 @router.get("/{username}/", response_model=UserOutput)
-async def get_user_profile(db_session: Annotated[AsyncSession, Depends(get_db)],username: str,):
+@limiter.limit("20/minute")
+async def get_user_profile(
+        request: Request,
+        db_session: Annotated[AsyncSession, Depends(get_db)],
+        username: str,
+        token_data: JWTPayload = Depends(JWTHandler.verify_token),
+):
+    if token_data.username != username:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied - You can only view your own profile"
+        )
+
     user_profile = await UsersOpration(db_session).get_by_username(username)
     return user_profile
 
-@router.delete("/{username}/")
-async def delete_user(
-    db_session: Annotated[AsyncSession, Depends(get_db)],
-    token_data: JWTPayload = Depends(JWTHandler.verify_token),
-):
-    await UsersOpration(db_session).delete_account(token_data.username)
 
+@router.delete("/{username}/")
+@limiter.limit("5/minute")
+async def delete_user(
+        request: Request,
+        db_session: Annotated[AsyncSession, Depends(get_db)],
+        username: str,
+        token_data: JWTPayload = Depends(JWTHandler.verify_token),
+):
+    if token_data.username != username:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied - You can only delete your own account"
+        )
+
+    await UsersOpration(db_session).delete_account(username)
+    return {"message": "User account deleted successfully"}
