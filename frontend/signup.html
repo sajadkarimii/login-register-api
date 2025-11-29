@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="shortcut icon" type="image" href="../image/logo.svg">
+  <title>Sign Up</title>
+</head>
+<body>
+  <div id="page" class="site signup-show">
+    <div class="container">
+      <div class="wrapper">
+        <div class="signup">
+          <div class="content-heading">
+            <div class="y-style">
+              <div class="logo"><a href="#">He<span>llo</span></a></div>
+              <div class="welcome">
+                <h2>Sign Up<br>Now</h2>
+              </div>
+            </div>
+          </div>
+          <div class="content-form">
+            <div class="y-style">
+              <form id="signupForm">
+                <p>
+                  <label>Full Name</label>
+                  <ion-icon name="person-outline" class="register-full-icon"></ion-icon>
+                  <input type="text" name="fullname" placeholder="Enter your name" required>
+                </p>
+                <p>
+                  <label>Username</label>
+                  <ion-icon name="person-outline" class="register-user-icon"></ion-icon>
+                  <input type="text" name="username" placeholder="Enter your username" required>
+                </p>
+                <p>
+                  <label>Email</label>
+                  <ion-icon name="mail-outline" class="register-email-icon"></ion-icon>
+                  <input type="email" name="email" placeholder="Enter your email" required>
+                </p>
+                <p>
+                  <label>Password</label>
+                  <ion-icon name="lock-closed-outline" class="register-lock-icon"></ion-icon>
+                  <input type="password" name="password" placeholder="Enter password" id="password2" minlength="6" required>
+                  <img src="../image/eye-close.png" id="eyeicon2" class="p-img">
+                </p>
+                <p>
+                  <label>Confirm password</label>
+                  <ion-icon name="lock-closed-outline" class="register-lock-icon2"></ion-icon>
+                  <input type="password" name="rpassword" placeholder="Confirm password" id="password3" minlength="6" required>
+                  <img src="../image/eye-close.png" id="eyeicon3" class="pf-img">
+                </p>
+                <p class="check">
+                  <input type="checkbox" id="terms" required>
+                  <label for="terms">I agree to all statements included <a href="https://policies.google.com/terms">Terms of Use</a></label>
+                </p>
+                <p><button type="submit">Sign Up</button></p>
+                <div id="message" style="color: red; margin-top: 10px; text-align: center;"></div>
+              </form>
+              <div class="social">
+                <p><span>Or sign up with</span></p>
+                <ul>
+                  <li><a href="#" class="google"><ion-icon name="logo-google"></ion-icon></a></li>
+                  <li><a href="#" class="facebook"><ion-icon name="logo-facebook"></ion-icon></a></li>
+                  <li><a href="#" class="twitter"><ion-icon name="logo-twitter"></ion-icon></a></li>
+                </ul>
+              </div>
+              <div class="afterform">
+                <p>Already have an account?</p>
+                <a href="login.html" class="t-login">Login here</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+      <script>
+      document.getElementById('signupForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const fullname = this.fullname.value.trim();
+        const username = this.username.value.trim();
+        const email = this.email.value.trim();
+        const password = this.password.value;
+        const rpassword = this.rpassword.value;
+        const terms = this.terms.checked;
+        const phone = "00000000000";
+        const address = "—";
+        const msgDiv = document.getElementById('message');
+
+        if (password !== rpassword) {
+          msgDiv.textContent = 'Passwords do not match.';
+          return;
+        }
+        if (password.length < 6) {
+          msgDiv.textContent = 'Password must be at least 6 characters.';
+          return;
+        }
+        if (!terms) {
+          msgDiv.textContent = 'You must agree to the Terms of Use.';
+          return;
+        }
+
+        try {
+          const res = await fetch('http://127.0.0.1:8000/users/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                username,
+                password,
+                fullname,
+                phone,
+                email,
+                address
+            })
+          });
+
+          const data = await res.json();
+
+          if (res.ok) {
+            msgDiv.style.color = 'green';
+            msgDiv.textContent = 'Registration successful! Redirecting to login...';
+            setTimeout(() => {
+              window.location.href = 'login.html';
+            }, 1500);
+          } else {
+            msgDiv.textContent = data.detail || 'Registration failed.';
+          }
+        } catch (err) {
+          console.error('Connection error:', err);
+          msgDiv.textContent = 'Server connection failed.';
+          const data = await res.json();
+          console.log(data);
+          if (Array.isArray(data.detail)) {
+              msgDiv.textContent = data.detail.map(e => e.msg).join(" | ");
+          } else {
+              msgDiv.textContent = data.detail || "Registration failed.";
+          }
+        }
+      });
+    </script>
+      <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <script>
+  document.getElementById('eyeicon2').addEventListener('click', function() {
+    const input = document.getElementById('password2');
+    const icon = document.getElementById('eyeicon2');
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.src = '../image/eye-open.png';
+    } else {
+      input.type = 'password';
+      icon.src = '../image/eye-close.png';
+    }
+  });
+  document.getElementById('eyeicon3').addEventListener('click', function() {
+    const input = document.getElementById('password3');
+    const icon = document.getElementById('eyeicon3');
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.src = '../image/eye-open.png';
+    } else {
+      input.type = 'password';
+      icon.src = '../image/eye-close.png';
+    }
+  });
+</script>
+</body>
+</html>

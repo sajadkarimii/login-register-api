@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="shortcut icon" type="image" href="../image/logo.svg">
+  <title>Logout</title>
+</head>
+<body>
+  <div id="page" class="site login-show">
+    <div class="container">
+      <div class="wrapper">
+        <div class="login">
+          <div class="content-heading">
+            <div class="y-style">
+              <div class="logo"><a href="#">He<span>llo</span></a></div>
+              <div class="welcome">
+                <h2 id="welcomeMessage">Welcome</h2>
+                <p>We can help you grow</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="content-form">
+          <div class="y-style">
+            <form id="logoutForm">
+              <p><button type="submit">Logout</button></p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // تابع ساده برای استخراج نام کاربری از توکن JWT (اختیاری)
+    function getUsernameFromToken(token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.username || payload.sub || 'User';
+      } catch (e) {
+        return 'User';
+      }
+    }
+
+    // نمایش پیام خوش‌آمدگویی
+    const token = localStorage.getItem('access_token');
+    const welcomeMsg = document.getElementById('welcomeMessage');
+
+    if (token) {
+      const username = getUsernameFromToken(token);
+      welcomeMsg.textContent = `Welcome ${username}`;
+    } else {
+      welcomeMsg.textContent = 'Welcome';
+      // اگر توکن نیست، می‌تونیم کاربر رو به لاگین هدایت کنیم
+      // setTimeout(() => window.location.href = 'login.html', 2000);
+    }
+
+    // مدیریت کلیک logout
+    document.getElementById('logoutForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      // پاک کردن توکن و remember
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('remember_me');
+
+      alert('You have been logged out.');
+      window.location.href = 'login.html';
+    });
+  </script>
+
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+</body>
+</html>
