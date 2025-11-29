@@ -1,0 +1,23 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# IDE files
+.idea/
+.vscode/
+
+# Virtual environments
+venv/
+env/
+
+# Logs
+*.log
+
+# Optional: database / migrations
+*.sqlite3
+migrations/
+ml_model.py
+feature_middleware.py
+feature_extractor.py

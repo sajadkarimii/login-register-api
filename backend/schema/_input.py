@@ -38,6 +38,11 @@ class RegisterInput(BaseModel):
 
         return v
 
+    @validator('phone')
+    def phone_validator(cls, v):
+        if not re.match(r'^\+?[\d]+$', v):
+            raise ValueError('Phone number must contain only numbers, + or 0')
+        return v
 
 class LoginInput(BaseModel):
     username: constr(min_length=3, max_length=50)

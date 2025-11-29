@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="shortcut icon" type="image" href="../image/logo.svg">
+  <title>Login</title>
+</head>
+<body>
+<div id="page" class="site login-show">
+  <div class="container">
+    <div class="wrapper">
+      <div class="login">
+        <div class="content-heading">
+          <div class="y-style">
+            <div class="logo"><a href="#">He<span>llo</span></a></div>
+            <div class="welcome">
+              <h2>Welcome<br>Back!</h2>
+            </div>
+          </div>
+        </div>
+        <div class="content-form">
+          <div class="y-style">
+            <form id="loginForm">
+              <p>
+                <label>Username</label>
+                <ion-icon name="person-outline" class="user-icon"></ion-icon>
+                <input type="text" name="username" placeholder="Enter username" required>
+              </p>
+              <p>
+                <label>Password</label>
+                <ion-icon name="lock-closed-outline" class="lock-icon"></ion-icon>
+                <input type="password" name="password" placeholder="Enter password" id="password_login" minlength="6" required>
+                <img src="../image/eye-close.png" id="eyeicon1" class="l-img">
+              </p>
+              <p class="check">
+                <input type="checkbox" name="remember" id="remember">
+                <label for="remember">Remember me</label>
+              </p>
+              <p class="forgot"><a href="forget.html">Forgot password</a></p>
+              <p><button type="submit">Login</button></p>
+            </form>
+            <div class="afterform">
+              <p>Don't have an account?</p>
+              <a href="signup.html" class="t-signup">Register</a>
+            </div>
+            <div id="message" style="color: red; margin-top: 10px; text-align: center;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- اسکریپت اتصال به FastAPI -->
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault(); // جلوگیری از سابمیت معمولی
+
+      const username = this.username.value.trim();
+      const password = this.password.value;
+      const remember = this.remember.checked;
+
+      if (!username || !password) {
+        document.getElementById('message').textContent = 'Please fill in all fields.';
+        return;
+      }
+
+      try {
+        // ارسال به FastAPI
+        const res = await fetch('http://127.0.0.1:8000/users/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+
+        const data = await res.json();
+        const msgDiv = document.getElementById('message');
+
+        if (res.ok) {
+          // ذخیره توکن (و remember اگر نیاز باشه)
+          localStorage.setItem('access_token', data.access_token);
+          if (remember) {
+            localStorage.setItem('remember_me', 'true');
+          }
+
+          msgDiv.style.color = 'green';
+          msgDiv.textContent = 'Login successful!';
+
+          // ریدایرکت بعد از 1 ثانیه
+          // setTimeout(() => {
+          //   window.location.href = 'logout.html'; // یا هر صفحه‌ی مقصد
+          // }, 1000);
+        } else {
+          msgDiv.textContent = data.detail || 'Invalid username or password.';
+        }
+      } catch (err) {
+        console.error('Connection error:', err);
+        document.getElementById('message').textContent = 'Server connection failed.';
+      }
+    });
+  </script>
+
+  <!-- آیکون‌ها -->
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+  <script>
+// تغییر حالت نمایش/پنهان کردن رمز عبور
+document.getElementById('eyeicon1').addEventListener('click', function() {
+    const passwordInput = document.getElementById('password_login');
+    const eyeIcon = document.getElementById('eyeicon1');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeIcon.src = '../image/eye-open.png'; // اگر عکس "باز" داری
+    } else {
+        passwordInput.type = 'password';
+        eyeIcon.src = '../image/eye-close.png';
+    }
+});
+</script>
+</body>
+</html>
