@@ -127,15 +127,14 @@
           });
 
           const data = await res.json();
-
-          if (res.ok) {
-            msgDiv.style.color = 'green';
-            msgDiv.textContent = 'Registration successful! Redirecting to login...';
-            setTimeout(() => {
+            if (res.ok) {
+                alert("Registration successful!");
+              setTimeout(() => {
               window.location.href = 'login.html';
             }, 1500);
-          } else {
-            msgDiv.textContent = data.detail || 'Registration failed.';
+            }
+            else {
+            alert("Registration failed.");
           }
         } catch (err) {
           console.error('Connection error:', err);
