@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="../css/style.css">
-  <link rel="shortcut icon" type="image" href="../image/logo.svg">
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="shortcut icon" type="image" href="./image/logo.svg">
   <title>Sign Up</title>
 </head>
 <body>
@@ -39,17 +39,27 @@
                   <ion-icon name="mail-outline" class="register-email-icon"></ion-icon>
                   <input type="email" name="email" placeholder="Enter your email" required>
                 </p>
+                  <p>
+                  <label>Phone number</label>
+                  <ion-icon name="call-outline" class="register-phone-icon"></ion-icon>
+                  <input type="text" name="phone" placeholder="Enter your phone number" required>
+                </p>
+                  <p>
+                  <label>Address</label>
+                  <ion-icon name="location-outline" class="register-address-icon"></ion-icon>
+                  <input type="text" name="address" placeholder="Enter your address" required>
+                </p>
                 <p>
                   <label>Password</label>
                   <ion-icon name="lock-closed-outline" class="register-lock-icon"></ion-icon>
                   <input type="password" name="password" placeholder="Enter password" id="password2" minlength="6" required>
-                  <img src="../image/eye-close.png" id="eyeicon2" class="p-img">
+                  <img src="./image/eye-close.png" id="eyeicon2" class="p-img">
                 </p>
                 <p>
                   <label>Confirm password</label>
                   <ion-icon name="lock-closed-outline" class="register-lock-icon2"></ion-icon>
                   <input type="password" name="rpassword" placeholder="Confirm password" id="password3" minlength="6" required>
-                  <img src="../image/eye-close.png" id="eyeicon3" class="pf-img">
+                  <img src="./image/eye-close.png" id="eyeicon3" class="pf-img">
                 </p>
                 <p class="check">
                   <input type="checkbox" id="terms" required>
@@ -85,8 +95,8 @@
         const password = this.password.value;
         const rpassword = this.rpassword.value;
         const terms = this.terms.checked;
-        const phone = "00000000000";
-        const address = "—";
+        const phone = this.phone.value.trim();
+        const address = this.address.value.trim();
         const msgDiv = document.getElementById('message');
 
         if (password !== rpassword) {
@@ -148,10 +158,10 @@
     const icon = document.getElementById('eyeicon2');
     if (input.type === 'password') {
       input.type = 'text';
-      icon.src = '../image/eye-open.png';
+      icon.src = './image/eye-open.png';
     } else {
       input.type = 'password';
-      icon.src = '../image/eye-close.png';
+      icon.src = './image/eye-close.png';
     }
   });
   document.getElementById('eyeicon3').addEventListener('click', function() {
@@ -159,10 +169,10 @@
     const icon = document.getElementById('eyeicon3');
     if (input.type === 'password') {
       input.type = 'text';
-      icon.src = '../image/eye-open.png';
+      icon.src = './image/eye-open.png';
     } else {
       input.type = 'password';
-      icon.src = '../image/eye-close.png';
+      icon.src = './image/eye-close.png';
     }
   });
 </script>

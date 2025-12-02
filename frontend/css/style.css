@@ -130,21 +130,21 @@ form input:not(#terms,#remember) {
     width: 15px;
     cursor: pointer;
     position: absolute;
-    top:42%;
+    top:53%;
     right: 15px;
  }
  .pf-img {
     width: 15px;
     cursor: pointer;
     position: absolute;
-    top: 54%;
+    top: 63%;
     right: 15px;
  }
  .l-img {
     width: 15px;
     cursor: pointer;
     position: absolute;
-    top: 32%;
+    top: 33%;
     right: 15px;
  }
 
@@ -309,15 +309,28 @@ form :is(p, lable ) a:hover, .afterform a:hover {
     left: -6%;
     top: 172px;
 }
+
+.register-phone-icon {
+    position: absolute;
+    left: -6%;
+    top: 254px;
+}
+
+.register-address-icon {
+    position: absolute;
+    left: -6%;
+    top: 336px;
+}
+
 .register-lock-icon {
     position: absolute;
     left: -6%;
-    top: 255px;
+    top: 418px;
 }
 .register-lock-icon2 {
     position: absolute;
     left: -6%;
-    top: 337px;
+    top: 500px;
 }
 
 .forget-email-icon { 
