@@ -35,10 +35,6 @@
                 <input type="password" name="password" placeholder="Enter password" id="password_login" minlength="6" required>
                 <img src="./image/eye-close.png" id="eyeicon1" class="l-img">
               </p>
-              <p class="check">
-                <input type="checkbox" name="remember" id="remember">
-                <label for="remember">Remember me</label>
-              </p>
               <p><button type="submit">Login</button></p>
             </form>
             <div class="afterform">
@@ -58,7 +54,6 @@
 
       const username = this.username.value.trim();
       const password = this.password.value;
-      const remember = this.remember.checked;
 
       if (!username || !password) {
         document.getElementById('message').textContent = 'Please fill in all fields.';
@@ -76,18 +71,13 @@
         const msgDiv = document.getElementById('message');
 
         if (res.ok) {
-          localStorage.setItem('access_token', data.access_token);
-          if (remember) {
-            localStorage.setItem('remember_me', 'true');
-          }
-
-          msgDiv.style.color = 'green';
-          msgDiv.textContent = 'Login successful!';
-            // setTimeout(() => {
-          //   window.location.href = 'logout.html';
-          // }, 1000);
+          localStorage.setItem('access_token', data.access);
+          alert("Login successful!");
+            setTimeout(() => {
+            window.location.href = 'logout.html';
+          }, 1000);
         } else {
-          msgDiv.textContent = data.detail || 'Invalid username or password.';
+            alert("Invalid username or password.");
         }
       } catch (err) {
         console.error('Connection error:', err);

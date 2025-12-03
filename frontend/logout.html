@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="../css/style.css">
-  <link rel="shortcut icon" type="image" href="../image/logo.svg">
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="shortcut icon" type="image" href="./image/logo.svg">
   <title>Logout</title>
 </head>
 <body>
@@ -22,54 +22,172 @@
               </div>
             </div>
           </div>
-        </div>
-        <div class="content-form">
-          <div class="y-style">
-            <form id="logoutForm">
-              <p><button type="submit">Logout</button></p>
-            </form>
+          <div class="content-form">
+            <div class="y-style">
+              <!-- user info section -->
+              <div id="userInfo" style="margin-bottom: 20px; font-size: 15px;"></div>
+
+              <!-- logout form -->
+              <form method="GET" id="logoutForm">
+                <p><button type="submit" name="logout">Logout</button></p>
+              </form>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <script>
-    // تابع ساده برای استخراج نام کاربری از توکن JWT (اختیاری)
-    function getUsernameFromToken(token) {
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        return payload.username || payload.sub || 'User';
-      } catch (e) {
-        return 'User';
+<script>
+  const token = localStorage.getItem('access_token');
+  const userInfoDiv = document.getElementById('userInfo');
+  const logoutForm = document.getElementById('logoutForm');
+
+  if (token) {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      console.log("JWT Payload:", payload);
+      const username = payload.username || payload.sub;
+
+      if (!username) {
+        throw new Error("No username in token");
       }
-    }
+      console.log("Token exists, length:", token.length);
 
-    // نمایش پیام خوش‌آمدگویی
-    const token = localStorage.getItem('access_token');
-    const welcomeMsg = document.getElementById('welcomeMessage');
+      const apiUrl = `http://127.0.0.1:8000/users/${username}/`;
+      console.log("Trying API URL:", apiUrl);
 
-    if (token) {
-      const username = getUsernameFromToken(token);
-      welcomeMsg.textContent = `Welcome ${username}`;
-    } else {
-      welcomeMsg.textContent = 'Welcome';
-      // اگر توکن نیست، می‌تونیم کاربر رو به لاگین هدایت کنیم
-      // setTimeout(() => window.location.href = 'login.html', 2000);
-    }
+      fetch(apiUrl, {
+        method: "GET",
+        headers: {
+          "auth-token": `${token}`,
+          "Content-Type": "application/json"
+        }
+      })
+      .then(async (res) => {
+        const responseText = await res.text();
+        console.log("Response status:", res.status);
+        console.log("Response text:", responseText);
 
-    // مدیریت کلیک logout
-    document.getElementById('logoutForm').addEventListener('submit', function(e) {
-      e.preventDefault();
+        if (!res.ok) {
+          let errorDetail = responseText;
+          try {
+            const parsed = JSON.parse(responseText);
+            errorDetail = JSON.stringify(parsed.detail || parsed);
+          } catch(e) {
+            // ignore
+          }
+          throw new Error(`HTTP ${res.status}: ${errorDetail}`);
+        }
 
-      // پاک کردن توکن و remember
+        return JSON.parse(responseText);
+      })
+      .then(data => {
+        console.log("Success! User data:", data);
+
+        userInfoDiv.innerHTML = `
+          <p><strong>Full Name:</strong> ${data.fullname || '-'}</p>
+          <p><strong>Username:</strong> ${data.username || username}</p>
+          <p><strong>Email:</strong> ${data.email || '-'}</p>
+          <p><strong>Phone:</strong> ${data.phone || '-'}</p>
+          <p><strong>Address:</strong> ${data.address || '-'}</p>
+        `;
+      })
+      .catch(err => {
+        console.error("Fetch error:", err);
+
+        userInfoDiv.innerHTML = `
+          <p style="color:orange;">Trying with Authorization header...</p>
+        `;
+
+        fetch(apiUrl, {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          }
+        })
+        .then(async (res) => {
+          const responseText = await res.text();
+          console.log("Second attempt response:", res.status, responseText);
+
+          if (!res.ok) {
+            throw new Error(`HTTP ${res.status}: ${responseText}`);
+          }
+
+          const data = JSON.parse(responseText);
+          userInfoDiv.innerHTML = `
+            <p><strong>Full Name:</strong> ${data.fullname || '-'}</p>
+            <p><strong>Username:</strong> ${data.username || username}</p>
+            <p><strong>Email:</strong> ${data.email || '-'}</p>
+            <p><strong>Phone:</strong> ${data.phone || '-'}</p>
+            <p><strong>Address:</strong> ${data.address || '-'}</p>
+          `;
+        })
+        .catch(err2 => {
+          console.error("Second attempt failed:", err2);
+
+          userInfoDiv.innerHTML = `
+            <p style="color:orange;">Trying with token only...</p>
+          `;
+
+          setTimeout(() => {
+            fetch(apiUrl, {
+              method: "GET",
+              headers: {
+                "auth-token": token,
+                "Authorization": token,
+                "Content-Type": "application/json"
+              }
+            })
+            .then(async (res) => {
+              const responseText = await res.text();
+              if (res.ok) {
+                const data = JSON.parse(responseText);
+                userInfoDiv.innerHTML = `
+                  <p><strong>Full Name:</strong> ${data.fullname || '-'}</p>
+                  <p><strong>Username:</strong> ${data.username || username}</p>
+                  <p><strong>Email:</strong> ${data.email || '-'}</p>
+                  <p><strong>Phone:</strong> ${data.phone || '-'}</p>
+                  <p><strong>Address:</strong> ${data.address || '-'}</p>
+                `;
+              } else {
+                throw new Error(responseText);
+              }
+            })
+            .catch(err3 => {
+              console.error("All attempts failed");
+
+              userInfoDiv.innerHTML = `
+                <div style="background:#f8f9fa; padding:15px; border-radius:8px;">
+                  <p><strong>Logged in as:</strong> ${username}</p>
+                  <p><strong>Token:</strong> ${token.substring(0, 20)}...</p>
+                  <p><small style="color:#666;">API expects different header format</small></p>
+                  <p><small style="color:red;">Please check backend auth configuration</small></p>
+                </div>
+              `;
+            });
+          }, 1000);
+        });
+      });
+
+    } catch (err) {
+      console.error("Token parsing error:", err);
       localStorage.removeItem('access_token');
-      localStorage.removeItem('remember_me');
-
-      alert('You have been logged out.');
       window.location.href = 'login.html';
-    });
-  </script>
+    }
+
+  } else {
+    setTimeout(() => window.location.href = 'login.html', 1000);
+  }
+
+  logoutForm.addEventListener('submit', e => {
+    e.preventDefault();
+    localStorage.removeItem('access_token');
+    alert('You have been logged out.');
+    window.location.href = 'login.html';
+  });
+</script>
 
   <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
 </body>
